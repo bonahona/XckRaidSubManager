@@ -11,7 +11,6 @@
 <hr />
 <p><img src="https://media.forgecdn.net/attachments/274/802/xck_rsm2.png" alt="" width="1030" height="591" /></p>
 <p>&nbsp;</p>
-<hr />
 <p>&nbsp;</p>
 <h4><strong><em>Command in Game available:</em></strong></h4>
 <ul>
@@ -26,11 +25,9 @@
 <li>/xraid clean</li>
 </ul>
 <p><em>This will kick all players aren't in the Setup Config</em></p>
-<hr />
 <p>&nbsp;</p>
 <h4><strong><em>Main Functionnality of this AddOns:</em></strong></h4>
 <p>&nbsp;</p>
-<hr />
 <ul>
 <li>Import Player(s) list from gDoc, Txt, every raw of players, players must be separated by space and in order(Player 1 = 1st of G1, Player 40 = 40th in last pos of G8)</li>
 <li>Invit Automatically player when he logon &amp; he's in Setup</li>
