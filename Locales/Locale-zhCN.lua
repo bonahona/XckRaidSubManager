@@ -1,4 +1,4 @@
-﻿if (GetLocale() == "esES") then
+﻿if (GetLocale() == "zhCN") then
 Xck_L = {}
 
 Xck_L = {}

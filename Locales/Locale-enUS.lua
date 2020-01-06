@@ -30,7 +30,7 @@ Xck_L["Disabled"] = "Disabled."
 Xck_L["raw_txt_success"] = "Player(s) list Imported."
 Xck_L["str_welcome"] = "|cfffbb034<|r|cffead454Xckbucl Raid Sub Manager>|r Made by Xckbucl on Sulfuron(Classic)|cffead454 -Settings Panel-"
 Xck_L["str_def_cmd_1"] = "|cfffbb034<|r|cffead454Xckbucl Raid Sub Manager>|r Made by Xckbucl on Sulfuron(Classic)"
-Xck_L["str_def_cmd_3"] = "|cfffbb034<|rAvailable Commands:|r|cfffbb034>"
+Xck_L["str_def_cmd_2"] = "|cfffbb034<|rAvailable Commands:|r|cfffbb034>"
 Xck_L["str_def_cmd_3"] = "Settings Panel |cff49C0C0/xraid config|r || |cff49C0C0/xckraid config|r\nPlayers Purge |cff49C0C0/xckraid clean|r || |cff49C0C0/xraid clean"
 Xck_L["class_name"] = {["HUNTER"] = "Hunter", ["WARRIOR"] = "Warrior", ["WARLOCK"] = "Warlock", ["SHAMAN"] = "Shaman", ["MAGE"] = "Mage", ["DRUID"] = "Druid", ["ROGUE"] = "Rogue", ["PRIEST"] = "Priest", ["PALADIN"] = "Paladin"}
 Xck_L["no_more_ml"] = "|cffead454is not ML anymore."
