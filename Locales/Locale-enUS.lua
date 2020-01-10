@@ -17,6 +17,7 @@ Xck_L["str_msg_AI_tooltip"] = "Choose ONE keyword.\nIf you get this keyword in W
 Xck_L["str_login_AI_tooltip"] = "If a player login & is planed to setup but isn't in party yet, he's got an insta-invitation.\nTo get this option working, you need to enable: \"Interface->Social->Guild Member Alert\""
 Xck_L["str_AO_tooltip"] =  "Enable or Disable Auto-Organization when player Join/Leave the raid or on player setup box Enter/Escape pressed etc"
 Xck_L["str_addon_enable_tooltip"] = "Enable or Disable the Addon"
+Xck_L["addon_must_be_enable"] = "|cffead454You need to enable the addon, check the box at the bottom"
 
 --LUA Translation Part
 Xck_L["missing_player"] = "Missing Players"
@@ -33,7 +34,11 @@ Xck_L["str_def_cmd_1"] = "|cfffbb034<|r|cffead454Xckbucl Raid Sub Manager>|r Mad
 Xck_L["str_def_cmd_2"] = "|cfffbb034<|rAvailable Commands:|r|cfffbb034>"
 Xck_L["str_def_cmd_3"] = "Settings Panel |cff49C0C0/xraid config|r || |cff49C0C0/xckraid config|r\nPlayers Purge |cff49C0C0/xckraid clean|r || |cff49C0C0/xraid clean"
 Xck_L["class_name"] = {["HUNTER"] = "Hunter", ["WARRIOR"] = "Warrior", ["WARLOCK"] = "Warlock", ["SHAMAN"] = "Shaman", ["MAGE"] = "Mage", ["DRUID"] = "Druid", ["ROGUE"] = "Rogue", ["PRIEST"] = "Priest", ["PALADIN"] = "Paladin"}
-Xck_L["no_more_ml"] = "|cffead454is not ML anymore."
+Xck_L["no_more_assist"] = "|cffead454is not ML anymore."
+Xck_L["is_assist"] = "|cffead454are now Promoted."
+Xck_L["will_be_assist"] = "|cffead454will be Promoted on joining."
+Xck_L["will_be_no_more_assist"] = "|cffead454will not be Promoted anymore on joining."
+Xck_L["no_more_assist"] = "|cffead454is not Promoted anymore."
 Xck_L["is_ml"] = "|cffead454are now the ML."
 Xck_L["will_be_ml"] = "|cffead454will be the ML on joining."
 Xck_L["will_be_no_more_ml"] = "|cffead454will not be ML anymore on joining."
@@ -43,5 +48,6 @@ Xck_L["msg_prevent_organize"] = "|cffead454The Groups will be organized followin
 Xck_L["group"] = "Group "
 Xck_L["unknown_player_auto_placed"] = " |cffead454isn't planed on this raid setup, he has been replaced automatically on empty slot, in the Group "
 Xck_L["unknown_player_setup_full"] = "|cFF7F0000Raid Setup full, replace a player by %s in the setup to avoid any problems of groups organization."
+Xck_L["msg_no_player_kick"] = "|cffead454Any player to Kick"
 
 end

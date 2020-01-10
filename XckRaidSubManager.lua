@@ -1,4 +1,6 @@
-﻿-- INIT ALL VARIABLES
+﻿----------------------------------------
+----------ALL VARIABLES OF ADDON--------
+----------------------------------------
 XckRSM = {frame = nil,
 	playersFrame = {},
 	groupTextFrame = {},
@@ -6,6 +8,7 @@ XckRSM = {frame = nil,
 	playerMissingLst = {},
 	playerKickLst = {},
 	playerClassCount = {["HUNTER"] = 0, ["WARRIOR"] = 0, ["WARLOCK"] = 0, ["SHAMAN"] = 0, ["MAGE"] = 0, ["DRUID"] = 0, ["ROGUE"] = 0, ["PRIEST"] = 0, ["PALADIN"] = 0},
+	playerAssist = {},
 	playerML = "",
 	playerFreeLine = {"Empty", "Libre", "&&&", "Vide"},
 	btnConfirmClick = {["INVIT"] = false, ["ORGANIZE"] = false, ["CLEAN"] = false},
@@ -22,10 +25,20 @@ XckRSM = {frame = nil,
 		["DEATHKNIGHT"] = { r = 0.77, g = 0.12 , b = 0.23, colorStr = "ffc41f3b" },
 		["MONK"] = { r = 0.0, g = 1.00 , b = 0.59, colorStr = "ff00ff96" },
 	},
+	miniMapBtn = {myIconPos = 0, 
+		DefaultOptions = {
+			["ButtonPos"] = {22, -130},
+		},
+	},
 }
 XckRSM.frame = CreateFrame("Frame", nil)
 
---Configuration du Menu en jeu
+
+----------------------------------------
+-------SLASH CMD & TANSLATE/MSG IG------
+----------------------------------------
+
+---- Init CMD in game
 SLASH_XCKRSM1, SLASH_XCKRSM2 = "/xckraid", "/xraid"
 SlashCmdList["XCKRSM"] = function(message)
 	local cmd = { }
@@ -37,6 +50,8 @@ SlashCmdList["XCKRSM"] = function(message)
 		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["str_welcome"])
 		elseif cmd[1] == "clean" then
 		XckRSM:KickWrongPlayer()
+		elseif cmd[1] == "minimap" then
+		XckRSM:ToggleMiniMapBtn()
 		else
 		if not XckbuclRaidSubManagerEnable then
 			XckbuclRaidSubManagerEnable = "enabled"
@@ -45,6 +60,7 @@ SlashCmdList["XCKRSM"] = function(message)
 	end
 end
 
+---- Translate all frame element from XML
 function XckRSM:Translate()
 	XckbuclRaidSubManagerUIFontStringMissingTxt:SetText(Xck_L["str_missing_players"])
 	XckbuclRaidSubManagerUIFontStringPlayersCountTxt:SetText(Xck_L["str_players_in_raids_count"])
@@ -57,7 +73,7 @@ function XckRSM:Translate()
 	XckbuclRaidSubManagerUICheckButtonEnableAKTextAKEnable:SetText(Xck_L["checkEnableAK"])
 end
 
-------AFFICHAGE MESSAGE ADDON
+---- Defaut message displayed on /xraid
 function XckRSM:DefautMsg()
 	DEFAULT_CHAT_FRAME:AddMessage(Xck_L["str_def_cmd_1"])
 	DEFAULT_CHAT_FRAME:AddMessage(Xck_L["str_def_cmd_2"])
@@ -65,7 +81,12 @@ function XckRSM:DefautMsg()
 	
 end
 
-------ACTIVER/DESACTIVER ADDON
+
+----------------------------------------
+-----TRIGGER CHECKBOX CLICK FUNCTION----
+----------------------------------------
+
+---- Update variable on Check/UnCheck AddOn Enabled
 function XckRSM:XckbuclRaidSubManagerEnabled()
 	if XckbuclRaidSubManagerUICheckButtonEnable:GetChecked() then
 		XckbuclRaidSubManagerEnable = "enabled"
@@ -76,7 +97,7 @@ function XckRSM:XckbuclRaidSubManagerEnabled()
 	end
 end
 
-------ACTIVER/DESACTIVER Auto-Organizer
+---- Update variable on Check/UnCheck Auto-Organize Enabled
 function XckRSM:XckbuclRaidSubManagerAOEnabled()
 	if XckbuclRaidSubManagerUICheckButtonEnableAO:GetChecked() then
 		XckbuclRaidSubManagerAOEnable = "enabled"
@@ -87,7 +108,7 @@ function XckRSM:XckbuclRaidSubManagerAOEnabled()
 	end
 end
 
-------ACTIVER/DESACTIVER Auto-Kick
+---- Update variable on Check/UnCheck Auto-Kick Enabled
 function XckRSM:XckbuclRaidSubManagerAKEnabled()
 	if XckbuclRaidSubManagerUICheckButtonEnableAK:GetChecked() then
 		XckbuclRaidSubManagerAKEnable = "enabled"
@@ -98,7 +119,7 @@ function XckRSM:XckbuclRaidSubManagerAKEnabled()
 	end
 end
 
-------ACTIVER/DESACTIVER Auto-Invite
+---- Update variable on Check/UnCheck Auto-Invite Enabled
 function XckRSM:XckbuclRaidSubManagerAIEnabled()
 	if XckbuclRaidSubManagerUICheckButtonEnableAITrigger:GetChecked() then
 		XckbuclRaidSubManagerAITriggerEnable = "enabled"
@@ -109,22 +130,27 @@ function XckRSM:XckbuclRaidSubManagerAIEnabled()
 	end
 end
 
--- Events Part
+
+----------------------------------------
+---------------EVENTS PART--------------
+----------------------------------------
+
+---- Register event & call specific function on trigger OnEvent
 XRaidSubManager = CreateFrame("Frame", nil)
 XRaidSubManager:RegisterEvent("GROUP_ROSTER_UPDATE")
 XRaidSubManager:RegisterEvent("CHAT_MSG_WHISPER")
 XRaidSubManager:RegisterEvent("CHAT_MSG_SYSTEM")
 local numInRaidLastEvent = GetNumGroupMembers()
 XRaidSubManager:SetScript("OnEvent", function(self, event, ...)	
+	---- If AddOn is not Enable, Stop here
 	if not XckbuclRaidSubManagerEnable or XckbuclRaidSubManagerEnable ~= "enabled" then
 		return
 	end
 	
+	---- If player isn't in Raid yet, Stop here
 	if XckRSM:PlayerIsInRaid() == false then
 		return
 	end
-	
-	local CurrentNumInRaid = GetNumGroupMembers()
 	
 	--If player friend/guildies login, check if in raid & invit him if it
 	if event == "CHAT_MSG_SYSTEM" and XckbuclRaidSubManagerAITriggerEnable == "enabled" then
@@ -132,9 +158,10 @@ XRaidSubManager:SetScript("OnEvent", function(self, event, ...)
 		local ONLINE = ERR_FRIEND_ONLINE_SS:gsub("%%s", "(.-)"):gsub("[%[%]]", "%%%1")
 		local OFFLINE = ERR_FRIEND_OFFLINE_S:gsub("%%s", "(.-)")
 		
+		---- If chat message match with the ONLINE/OFFLINE pattern, continue
 		if strmatch(text, ONLINE) then
 			local _,pName = strmatch(text, ONLINE)
-			
+			---- If playername logged in match with name in Setup, invite him
 			if XckRSM:GetRaidIDByName(pName) == false and XckRSM:has_value(XckRSM.playersLst, pName) == true then
 				InviteUnit(pName)
 			end
@@ -144,34 +171,44 @@ XRaidSubManager:SetScript("OnEvent", function(self, event, ...)
 		end
 	end
 	
+	---- Event for the Raid
 	if event == "GROUP_ROSTER_UPDATE" then
-		
+		---- Get raid players count
+		local CurrentNumInRaid = GetNumGroupMembers()
+		---- if the Number of raid is not same as last saved, then player has joined or leaved group, if its same, the roster event are not interesting for us & stop here
 		if numInRaidLastEvent ~= CurrentNumInRaid then
 			numInRaidLastEvent = CurrentNumInRaid
 			else
 			return
 		end
 		
+		---- Call main functions for get players missing infos & class color
 		XckRSM:getNumMissingPlayers()
 		XckRSM:ColorizeNameByClass()
 		
-		--Check Players Options
+		---- Check Players Options for auto set on joining
 		XckRSM:checkPlayerSetML()
+		XckRSM:checkPlayerSetAssist()
 		
+		---- If option Auto-Organize is set, call the func for Organize the raid
 		if XckbuclRaidSubManagerAOEnable and XckbuclRaidSubManagerAOEnable == "enabled" then
 			XckRSM:OrganizePlayerGroup()
 		end
 		
+		-- This is blocked by Blizzard, Tainted, idk why so i've disabled option Auto-Kick
 		-- if XckbuclRaidSubManagerAKEnable and XckbuclRaidSubManagerAKEnable == "enabled" then
 		-- C_Timer.After(3, function() XckRSM:KickWrongPlayer() end)
 		-- XckRSM:KickWrongPlayer()
 		-- end
 	end
 	
+	---- Event for the whisper message, if keyword is empty, stop here
 	if event == "CHAT_MSG_WHISPER" and XckbuclRaidSubManagerUIAutoInvitMsgEditBox:GetText() ~= "" then
 		local arg1, arg2 = ...
+		---- If the message is equal to keyword continue
 		if arg1 == XckbuclRaidSubManagerUIAutoInvitMsgEditBox:GetText() then
-			if XckRSM:isPlayerRightRaid(arg2) == false then
+			---- If PlayerName is not in Setup then send message error, else invite him
+			if XckRSM:has_value(XckRSM.playersLst, XckRSM:RemoveRealmPName(arg2)) == false then
 				SendChatMessage(Xck_L["w_kick_msg"], "WHISPER", "Common", arg2)
 				else
 				InviteUnit(arg2)
@@ -180,122 +217,108 @@ XRaidSubManager:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
-function XckRSM:ExportPlayerFromRaw(players)
-	
-	XckbuclRaidSubManagerSettings = self:initEmptyTablePlayers()
-	self.playersLst = self:initEmptyTablePlayers()
-	
-	local players_data = players
-	local pTable, pCount = {}, 1
-	
-	for pNum=1, 40 do
-		
-		if self:str_split(players_data, "[^%s]+")[pNum] ~= nil then
-			local pName = self:str_split(players_data, "[^%s]+")[pNum]
-			if self:has_value(self.playerFreeLine, pName) then
-				pName = ""
-			end
-			tinsert(pTable, pName)
-			else
-			tinsert(pTable, "")
-		end
-	end
-	
-	
-	DEFAULT_CHAT_FRAME:AddMessage(pTable)
-	
-	XckbuclRaidSubManagerSettings = pTable
-	self.playersLst = pTable
-	self:LoadPlayerOnEditbox()
-	DEFAULT_CHAT_FRAME:AddMessage("|cffead454Xckbucl Raid Sub Manager|r: "..Xck_L["raw_txt_success"])
-end
 
-function XckRSM:str_split(players_data, pattern_delimiter)
-    result = {};
-	for v in string.gmatch(players_data, pattern_delimiter) do
-		local pName = v
-		if self:has_value(self.playerFreeLine, pName) then
-			pName = ""
-		end
-		tinsert(result, pName)
-	end
-    return result;
-end
+----------------------------------------
+-----PLAYER DROPDOWN MENU FUNCTIONS-----
+----------------------------------------
 
-function XckRSM:UpdatePlayersLst(editBox)	
-	local pNum = tonumber(string.match(editBox:GetName(), "%d+"))
-	local pName = self:UnescapeSequenceStr(editBox:GetText())
-	
-	-- DEFAULT_CHAT_FRAME:AddMessage(XckbuclRaidSubManagerSettings[5])
-	-- DEFAULT_CHAT_FRAME:AddMessage(XckRSM.playersLst[5])
-	-- DEFAULT_CHAT_FRAME:AddMessage(editBox:GetText())
-	
-	XckbuclRaidSubManagerSettings[pNum] = pName
-	XckRSM.playersLst[pNum] = pName
-	
-	if XckbuclRaidSubManagerAOEnable == "enabled" and self:PlayerIsInRaid() ~= false then
-		self:OrganizePlayerGroup()
-	end
-	
-end
-
+---- Init DropDown options list
 function DropDownXRSM_InitializeDropDown(self, level)
 	-- Create a table to use for button information
 	local info = UIDropDownMenu_CreateInfo()
 	
-	-- Create a title button
+	---- DropDown Menu Title
 	info.text = Xck_L["p_menu_title"]
 	info.isTitle = 1
 	UIDropDownMenu_AddButton(info)
 	
-	-- Create a normal button
+	---- DropDown Menu Option Promot
+	info = UIDropDownMenu_CreateInfo()
+	info.hasArrow = false;
+	info.notCheckable = true;
+	info.disabled = false;
+	info.icon = "Interface/groupframe/UI-GROUP-ASSISTANTICON";
+	info.text = "Assist";
+	info.value = 1;
+	info.owner = UIDROPDOWNMENU_OPEN_MENU;
+	info.func = XckRSM.DropClicked;
+	UIDropDownMenu_AddButton(info)
+	
+	---- DropDown Menu Option ML
 	info = UIDropDownMenu_CreateInfo()
 	info.hasArrow = false;
 	info.notCheckable = true;
 	info.disabled = false;
 	info.icon = "Interface/groupframe/UI-Group-MasterLooter";
 	info.text = "ML";
-	info.value = 1;
-	info.owner = UIDROPDOWNMENU_OPEN_MENU;
-	info.func = XckRSM.DropClicked;
-	UIDropDownMenu_AddButton(info)
-	
-	-- Create a normal button
-	info = UIDropDownMenu_CreateInfo()
-	info.hasArrow = false;
-	info.notCheckable = true;
-	info.icon = "Interface/friendsframe/PlusManz-PlusManz";
-	info.text = "Invit";
 	info.value = 2;
 	info.owner = UIDROPDOWNMENU_OPEN_MENU;
 	info.func = XckRSM.DropClicked;
 	UIDropDownMenu_AddButton(info)
 	
-	-- Create a normal button
+	---- DropDown Menu Option Invite
+	info = UIDropDownMenu_CreateInfo()
+	info.hasArrow = false;
+	info.notCheckable = true;
+	info.icon = "Interface/friendsframe/PlusManz-PlusManz";
+	info.text = "Invite";
+	info.value = 3;
+	info.owner = UIDROPDOWNMENU_OPEN_MENU;
+	info.func = XckRSM.DropClicked;
+	UIDropDownMenu_AddButton(info)
+	
+	---- DropDown Menu Option Kick
 	info = UIDropDownMenu_CreateInfo()
 	info.hasArrow = false;
 	info.notCheckable = true;
 	info.icon = "Interface/buttons/UI-GroupLoot-Pass-Up";
 	info.text = "Kick";
-	info.value = 3;
+	info.value = 4;
 	info.owner = UIDROPDOWNMENU_OPEN_MENU;
 	info.func = XckRSM.DropClicked;
 	UIDropDownMenu_AddButton(info)
 end
 
--- Event DropDown Clicked
+---- OnClick DropDown Menu Option
 function XckRSM.DropClicked(self, arg1, arg2, checked)
 	local pID = string.match (self.owner:GetName(), "%d+")
 	local actionID = self.value
 	local PlayerName = XckRSM:UnescapeSequenceStr(_G["XRSMPlayer_"..pID]:GetText())
-	-- DEFAULT_CHAT_FRAME:AddMessage("Player: "..pID.." - RoleID: "..actionID)
 	
+	---- If PlayerName on Editbox left to button is Empty, stop here
 	if PlayerName == "" then
 		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["not_in_raid"])
 		return
 	end
 	
+	---- OnClick on Assist Button
 	if actionID == 1 then
+		local playerAssistTableIndex = XckRSM:get_index(XckRSM.playerAssist, PlayerName)
+		local playerRID = XckRSM:GetRaidIDByName(PlayerName)
+		if XckRSM:PlayerIsInRaid() ~= false and playerRID ~= false then
+			local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(playerRID);
+			if rank == 1 then
+				if playerAssistTableIndex ~= false then
+					XckRSM.playerAssist[playerAssistTableIndex] = nil
+				end
+				DemoteAssistant(PlayerName)
+				DEFAULT_CHAT_FRAME:AddMessage("<"..UnitName("raid"..playerRID)..">  "..Xck_L["no_more_assist"])
+				else
+				tinsert(XckRSM.playerAssist, PlayerName)
+				PromoteToAssistant(PlayerName)
+				DEFAULT_CHAT_FRAME:AddMessage("<"..UnitName("raid"..playerRID)..">  "..Xck_L["is_assist"])
+			end
+			elseif XckRSM:PlayerIsInRaid() ~= false and playerRID == false then
+			if playerAssistTableIndex == false then
+				tinsert(XckRSM.playerAssist, PlayerName)
+				DEFAULT_CHAT_FRAME:AddMessage("<"..PlayerName..">  "..Xck_L["will_be_assist"])
+				else
+				DEFAULT_CHAT_FRAME:AddMessage("<"..PlayerName..">  "..Xck_L["will_be_no_more_assist"])
+				XckRSM.playerAssist[playerAssistTableIndex] = nil
+			end
+		end
+		---- OnClick on ML Button
+		elseif actionID == 2 then
 		local playerRID = XckRSM:GetRaidIDByName(PlayerName)
 		if XckRSM:PlayerIsInRaid() ~= false and playerRID ~= false then
 			local lootmethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod()
@@ -310,15 +333,17 @@ function XckRSM.DropClicked(self, arg1, arg2, checked)
 			elseif XckRSM:PlayerIsInRaid() ~= false and playerRID == false then
 			if XckRSM.playerML == "" or (XckRSM.playerML ~= "" and XckRSM.playerML ~= PlayerName) then
 				XckRSM.playerML = PlayerName
-				DEFAULT_CHAT_FRAME:AddMessage("<"..XckRSM.playerML..">  "..Xck_L["will_be_ml"])
+				DEFAULT_CHAT_FRAME:AddMessage("<"..PlayerName..">  "..Xck_L["will_be_ml"])
 				else
-				DEFAULT_CHAT_FRAME:AddMessage("<"..XckRSM.playerML..">  "..Xck_L["will_be_no_more_ml"])
+				DEFAULT_CHAT_FRAME:AddMessage("<"..PlayerName..">  "..Xck_L["will_be_no_more_ml"])
 				XckRSM.playerML = ""
 			end
 		end
-		elseif actionID == 2 then
-		InviteUnit(PlayerName)
+		---- OnClick on Invite Player
 		elseif actionID == 3 then
+		InviteUnit(PlayerName)
+		---- OnClick on Kick Player
+		elseif actionID == 4 then
 		if XckRSM:PlayerIsInRaid() == false then
 			DEFAULT_CHAT_FRAME:AddMessage(Xck_L["no_player_filled"])
 			return
@@ -334,11 +359,16 @@ function XckRSM.DropClicked(self, arg1, arg2, checked)
 	
 end
 
+
+----------------------------------------
+-----SavedVariables INIT FUNCTIONS------
+----------------------------------------
+
+---- Init all SavedVariables of AddOn
 function XckRSM:InitAddon()
 	self:InitRaidFramePlayers()
 	self:CreateBtnRaidFrame()
 	
-	--Init Variable Addons
 	if not XckbuclRaidSubManagerSettings then
 		XckbuclRaidSubManagerSettings = self:initEmptyTablePlayers()
 	end
@@ -361,6 +391,7 @@ function XckRSM:InitAddon()
 	
 end
 
+---- Load Settings CheckBox State from SavedVariables
 function XckRSM:loadSettings()
 	if XckbuclRaidSubManagerEnable == "enabled" then
 		XckbuclRaidSubManagerUICheckButtonEnable:SetChecked(true)
@@ -387,11 +418,15 @@ function XckRSM:loadSettings()
 	end
 	
 	self:LoadPlayerOnEditbox()
-	
 end
 
+
+----------------------------------------
+------------FRAMES FUNCTIONS------------
+----------------------------------------
+
+---- Create Button from RaidTab for open Setup Panel of AddOn
 function XckRSM:CreateBtnRaidFrame()
-	
 	-- Add Option Button
 	self.XckRSMBtnRaidFrame = CreateFrame("Button", "XckRSMBtnRaidFrame", RaidFrame,"UIPanelButtonTemplate")
 	self.XckRSMBtnRaidFrame:SetPoint('TOP', RaidFrame, 'TOP', 75, -2)
@@ -402,9 +437,9 @@ function XckRSM:CreateBtnRaidFrame()
 	self.XckRSMBtnRaidFrame:SetScript("OnClick", function(self)
 		XckbuclRaidSubManagerUI:Show()
 	end)
-	
 end
 
+---- Create All frames of Setup
 function XckRSM:InitRaidFramePlayers()
 	
 	local DefaultXPos = 200
@@ -414,12 +449,12 @@ function XckRSM:InitRaidFramePlayers()
 	for numG = 1, 8 do
 		
 		for numP = 1, 5 do
-			--Count all players position
+			---- Count all players position
 			pCount = (pCount+1)
-			--If current Player is number 21 then start to split the group 1-4 from 5-8
+			---- If current Player is number 21 then start to split the group 1-4 from 5-8
 			yPos = (DefaultYPos-(numP*yBtwG))
-			--Create Input Frame with PlayersNames
-			self.playersFrame = CreateFrame("EditBox", "XRSMPlayer_"..pCount, XckbuclRaidSubManagerUI,"InputBoxTemplate")
+			---- Create Input Frame for PlayerName
+			self.playersFrame = CreateFrame("EditBox", "XRSMPlayer_"..pCount, XckbuclRaidSubManagerUISetup1,"InputBoxTemplate")
 			self.playersFrame:SetPoint("TOPLEFT",xPos,yPos)
 			self.playersFrame:SetWidth(90)
 			self.playersFrame:SetHeight(30)
@@ -431,7 +466,7 @@ function XckRSM:InitRaidFramePlayers()
 			self.playersFrame:SetScript("OnEscapePressed", function (self) self:ClearFocus()  XckRSM:ColorizeNameByClass() end)
 			self.playersFrame:SetScript("OnEditFocusLost", function (self) XckRSM:ColorizeNameByClass() XckRSM:UpdatePlayersLst(self) XckRSM:getNumMissingPlayers() end)
 			
-			-- Add Option Button
+			---- Create Player Option button
 			self.PlayerOptButton = CreateFrame("Button", "XRSMPlayerOpt_"..pCount, getglobal("XRSMPlayer_"..pCount),"UIPanelButtonTemplate")
 			self.PlayerOptButton:SetPoint('RIGHT', getglobal("XRSMPlayer_"..pCount), 'RIGHT', 27, 0)
 			self.PlayerOptButton:SetFrameStrata("MEDIUM")
@@ -443,18 +478,31 @@ function XckRSM:InitRaidFramePlayers()
 				ToggleDropDownMenu(1, nil, _G["PlayerOptMenu_"..self:GetID()], self:GetName(), 0, 0)
 			end)
 			
+			---- Create Player MT button
+			self.PlayerMainTankButton = CreateFrame("Button", "XRSMPlayerMT_"..pCount, getglobal("XRSMPlayer_"..pCount), "SecureActionButtonTemplate")
+			self.PlayerMainTankButton:SetPoint('RIGHT', getglobal("XRSMPlayer_"..pCount), 'RIGHT', -2, 0)
+			self.PlayerMainTankButton:SetFrameStrata("MEDIUM")
+			self.PlayerMainTankButton:SetWidth(15)
+			self.PlayerMainTankButton:SetHeight(15)
+			self.PlayerMainTankButton:SetID(pCount)
+			self.PlayerMainTankButton:SetNormalTexture("Interface\\groupframe\\UI-GROUP-MAINTANKICON")
+			self.PlayerMainTankButton:SetHighlightTexture("Interface\\groupframe\\UI-GROUP-MAINTANKICON")
+			self.PlayerMainTankButton:Hide()
+			
+			---- Create indicator for player InRaid/NotInRaid state
 			self.PlayerStateIndicator = CreateFrame("Button","XRSMPlayerIndicator_"..pCount,self.PlayerOptButton)
 			self.PlayerStateIndicator:SetPoint("CENTER",20,0)
 			self.PlayerStateIndicator:SetWidth(20)
 			self.PlayerStateIndicator:SetHeight(20)
 			self.PlayerStateIndicator:SetFrameStrata("MEDIUM")
-			-- self.PlayerStateIndicator:SetNormalTexture("Interface\\friendsframe\\StatusIcon-Offline")
 			
+			---- Link DropDown Option Menu to Player
 			local DropDownXRSM_DropDown = CreateFrame("Button", "PlayerOptMenu_"..pCount, getglobal("XRSMPlayerOpt_"..pCount), "UIDropDownMenuTemplate")
 			UIDropDownMenu_Initialize(DropDownXRSM_DropDown, DropDownXRSM_InitializeDropDown);		
 			
 		end
 		
+		---- If Group Number is higner than 5 then add value else, reset XPos
 		if numG >= 5 then
 			yPos = (DefaultYPos-yBtwG)
 			xPos = (xPos+xBtwG)
@@ -466,7 +514,7 @@ function XckRSM:InitRaidFramePlayers()
 			end
 		end 
 		
-		--Add Group Text Title
+		---- Add Group Text Title below each Group editbox
 		local text = getglobal("XRSMPlayer_"..(numG*5)-4):CreateFontString(nil,"OVERLAY","GameFontNormal")
 		text:SetPoint("TOPLEFT", 0, 10)
 		text:SetFont("Fonts\\FRIZQT__.TTF", 11)
@@ -478,9 +526,13 @@ function XckRSM:InitRaidFramePlayers()
 	
 end
 
+
+----------------------------------------
+----IMPORT/UPLOAD PLAYERS FUNCTIONS-----
+----------------------------------------
+
+---- Load all players present in table self.playersLst into Setup UI
 function XckRSM:LoadPlayerOnEditbox()
-	-- /run DEFAULT_CHAT_FRAME:AddMessage("Player 0: "..XckRSM.playersLst[1])
-	
 	if #self.playersLst == 0 and #XckbuclRaidSubManagerSettings ~= 0 then
 		self.playersLst = XckbuclRaidSubManagerSettings
 		elseif (self.playerLst == nil or #self.playerLst == 0) and #XckbuclRaidSubManagerSettings == 0 then
@@ -496,6 +548,9 @@ function XckRSM:LoadPlayerOnEditbox()
 		end
 		
 		_G["XRSMPlayer_"..numP]:SetText(nameP)
+		_G["XRSMPlayerMT_"..numP]:SetAttribute("type", "maintank")
+		_G["XRSMPlayerMT_"..numP]:SetAttribute("action", "toggle")
+	    _G["XRSMPlayerMT_"..numP]:SetAttribute("unit", nameP)
 		
 	end
 	
@@ -505,156 +560,58 @@ function XckRSM:LoadPlayerOnEditbox()
 	end
 end
 
-
-function XckRSM:getPlayerClass(playerName)
+---- Import the raw Players List to variable self.playersLst and into SavedVariables
+function XckRSM:ExportPlayerFromRaw(players)
 	
-	local playerClass, englishClass = UnitClass(playerName);
-	SetGuildRosterShowOffline(true)
-	GuildRoster()
-	if englishClass then
-		SetGuildRosterShowOffline(false)
-		return englishClass
-		elseif self:PlayerIsGuildMate(playerName) ~= false then
-		local name, rank, rankIndex, level, class, zone, note, 
-		officernote, online, status, classFileName, 
-		achievementPoints, achievementRank, isMobile, isSoREligible, standingID = GetGuildRosterInfo(self:PlayerIsGuildMate(playerName));
-		SetGuildRosterShowOffline(false)
-		return classFileName
-		else
-		SetGuildRosterShowOffline(false)
-		return "Unknown"
-	end
+	XckbuclRaidSubManagerSettings = self:initEmptyTablePlayers()
+	self.playersLst = self:initEmptyTablePlayers()
 	
-end
-
-function XckRSM:PlayerIsGuildMate(playerName)
-	numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers();
-	for GuildNumMember = 1, numTotalGuildMembers do
-		name, rank, rankIndex, level, classDisplayName, zone, note, officernote, isOnline, status = GetGuildRosterInfo(GuildNumMember)
+	local players_data = players
+	local pTable, pCount = {}, 1
+	
+	for pNum=1, 40 do
 		
-		if string.gsub(name, "-"..GetRealmName(), "") == playerName then
-			return GuildNumMember
+		if self:str_split(players_data, "[^%s]+")[pNum] ~= nil then
+			local pName = self:str_split(players_data, "[^%s]+")[pNum]
+			if self:has_value(self.playerFreeLine, pName) then
+				pName = ""
+			end
+			tinsert(pTable, pName)
+			else
+			tinsert(pTable, "")
 		end
-		
-	end
-	return false
-end
-
-
--- Get Player Raid ID
-function XckRSM:GetRaidIDByName(PlayerName)
-	-- /run DEFAULT_CHAT_FRAME:AddMessage(XckRSM:GetRaidIDByName("Xckbucl"))
-	if XckRSM:PlayerIsInRaid() == false then
-		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["no_player_filled"])
-		return
-	end
-	local targetID = 1;
-	for i = 1, GetNumGroupMembers() do
-		if string.gsub(UnitName("raid"..i), "-"..GetRealmName(), "") == PlayerName then
-			return i;
-		end
-	end
-	return false
-end
-
-
-function XckRSM:OrganizePlayerGroup()
-	if not XckbuclRaidSubManagerEnable or XckbuclRaidSubManagerEnable ~= "enabled" then
-		return
-	end
-	if self:PlayerIsInRaid() == false then
-		return
-	end
-	self:getNumMissingPlayers()
+	end	
 	
-	-- for numP = 1, 40 do
-	-- local PlayerNameInput = self:UnescapeSequenceStr(_G["XRSMPlayer_"..numP]:GetText())
-	-- local PlayerNumRaid = self:GetRaidIDByName(PlayerNameInput)
+	XckbuclRaidSubManagerSettings = pTable
+	self.playersLst = pTable
+	self:LoadPlayerOnEditbox()
+	DEFAULT_CHAT_FRAME:AddMessage("|cffead454Xckbucl Raid Sub Manager|r: "..Xck_L["raw_txt_success"])
+end
+
+
+----------------------------------------
+-------------MAIN FUNCTIONS-------------
+----------------------------------------
+
+---- Update the table self.playersLst and SavedVariables when player is update
+function XckRSM:UpdatePlayersLst(editBox)	
+	local pNum = tonumber(string.match(editBox:GetName(), "%d+"))
+	local pName = self:UnescapeSequenceStr(editBox:GetText())
+	pName = self:RemoveRealmPName(pName)
 	
-	-- if PlayerNumRaid ~= false then
-	-- local PlayerName = string.gsub(UnitName("raid"..PlayerNumRaid), "-"..GetRealmName(), "")
-	-- if PlayerNameInput == PlayerName then
-	-- self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(numP))
-	-- end
-	-- end
-	-- end
+	_G["XRSMPlayerMT_"..pNum]:SetAttribute("type", "maintank")
+	_G["XRSMPlayerMT_"..pNum]:SetAttribute("action", "toggle")
+	_G["XRSMPlayerMT_"..pNum]:SetAttribute("unit", pName)
 	
-	for PlayerNumRaid = 1, GetNumGroupMembers() do
-		local PlayerName = string.gsub(UnitName("raid"..PlayerNumRaid), "-"..GetRealmName(), "")
-		if self:has_value(self.playersLst, PlayerName) then
-			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(self:get_index(self.playersLst, PlayerName)))
-			elseif self:has_value(self.playersLst, PlayerName) == false and self:has_value(self.playersLst, "") then
-			local indexEmptyP = self:get_index(self.playersLst, "")
-			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(indexEmptyP))
-			self.playersLst[indexEmptyP] = PlayerName
-			XckbuclRaidSubManagerSettings[indexEmptyP] = PlayerName
-			self:LoadPlayerOnEditbox()
-			DEFAULT_CHAT_FRAME:AddMessage(PlayerName..Xck_L["unknown_player_auto_placed"]..self:getPlayerGroupByID(indexEmptyP))
-			elseif self:has_value(self.playersLst, PlayerName) == false and self:has_value(self.playersLst, "") == false and PlayerName ~= "Inconnu" then
-			DEFAULT_CHAT_FRAME:AddMessage(string.format(Xck_L["unknown_player_setup_full"], PlayerName))
-		end
-	end
+	XckbuclRaidSubManagerSettings[pNum] = pName
+	XckRSM.playersLst[pNum] = pName
 	
-end
-
-function XckRSM:T_is_empty(t)
-	for _,_ in pairs(t) do
-		return false
+	if XckbuclRaidSubManagerAOEnable == "enabled" and self:PlayerIsInRaid() ~= false then
+		self:OrganizePlayerGroup()
 	end
-	return true
 end
 
---Function to generate empty save players list
-function XckRSM:initEmptyTablePlayers()
-	local player = {}
-	for i=1,40 do 
-		player[i] = "Empty"
-	end
-	return player
-end
-
-
---Function to calcul on which group player need to go wisth the ID Position
-function XckRSM:getPlayerGroupByID(playerID)
-	return math.ceil(playerID/5)
-end
-
---Function for remove color... code from string
-function XckRSM:UnescapeSequenceStr(String)
-	local Result = tostring(String)
-	Result = gsub(Result, "|c........", "") -- Remove color start.
-	Result = gsub(Result, "|r", "") -- Remove color end.
-	Result = gsub(Result, "|H.-|h(.-)|h", "%1") -- Remove links.
-	Result = gsub(Result, "|T.-|t", "") -- Remove textures.
-	Result = gsub(Result, "{.-}", "") -- Remove raid target icons.
-	return Result
-end
-
---Check if table has Value
-function XckRSM:has_value(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-		end
-	end
-    return false
-end
-
---Check if table has Value
-function XckRSM:get_index(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return index
-		end
-	end
-    return false
-end
-
---Function to check if player is in Raid
-function XckRSM:PlayerIsInRaid()
-	return UnitInRaid("player") and true or false
-end
-
+---- Get Num & Info of all missing Players
 function XckRSM:getNumMissingPlayers()
 	if self:PlayerIsInRaid() == false then
 		return
@@ -692,6 +649,7 @@ function XckRSM:getNumMissingPlayers()
 	XckbuclRaidSubManagerUIFontStringPlayersCountTxtRslt:SetText(GetNumGroupMembers())
 end
 
+---- Get all Class Color and Colorize them
 function XckRSM:ColorizeNameByClass()
 	for numP = 1, 40 do
 		
@@ -712,6 +670,7 @@ function XckRSM:ColorizeNameByClass()
 	self:DisplayResumeClassCount()
 end
 
+---- Display all Class sum top of AddOn
 function XckRSM:DisplayResumeClassCount()
 	local frameClassStr, classPos, lastClassStrWidth, xPos = nil, 0, 0, 0
 	local englishFaction, localizedFaction = UnitFactionGroup("player")
@@ -740,14 +699,36 @@ function XckRSM:DisplayResumeClassCount()
 	end
 end
 
-function XckRSM:MovePlayer(playerRaidID, subgroup)
+---- Function for Kick all players aren't in the Setup
+function XckRSM:KickWrongPlayer()
 	if XckRSM:PlayerIsInRaid() == false then
 		return
 	end
-	SetRaidSubgroup(playerRaidID, subgroup)
-	
+	if self.btnConfirmClick["CLEAN"] == false then
+		for playerRID = 1, GetNumGroupMembers() do
+			local PlayerRaidName = UnitName("raid"..playerRID)
+			if self:has_value(self.playersLst, PlayerRaidName) == false then
+				tinsert(self.playerKickLst, PlayerRaidName)
+			end
+		end
+		if not self.playerKickLst[1] then
+			DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_no_player_kick"])
+			else
+			DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_prevent_kick"]..table.concat(self.playerKickLst,","))
+			self.btnConfirmClick["CLEAN"] = true
+			return
+		end
+		else
+		for numP, pName in pairs(self.playerKickLst) do
+			UninviteUnit(pName)
+			SendChatMessage(Xck_L["w_kick_msg"], "WHISPER", "Common", pName)
+		end
+		self.playerKickLst = {}
+		self.btnConfirmClick["CLEAN"] = false
+	end
 end
 
+---- Function for invite all player's missing in Raid based on Setup
 function XckRSM:InviteMissingPlayers()
 	if XckRSM:PlayerIsInRaid() == false then
 		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["no_player_filled"])
@@ -769,31 +750,150 @@ function XckRSM:InviteMissingPlayers()
 	end
 end
 
-function XckRSM:KickWrongPlayer()
-	if XckRSM:PlayerIsInRaid() == false then
+---- Function for Organize all players in Raid based on Setup
+function XckRSM:OrganizePlayerGroup()
+	if not XckbuclRaidSubManagerEnable or XckbuclRaidSubManagerEnable ~= "enabled" then
 		return
 	end
-	if self.btnConfirmClick["CLEAN"] == false then
-		for playerRID = 1, GetNumGroupMembers() do
-			local PlayerRaidName = UnitName("raid"..playerRID)
-			if self:has_value(self.playersLst, PlayerRaidName) == false then
-				tinsert(self.playerKickLst, PlayerRaidName)
-			end
-		end
-		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_prevent_kick"]..table.concat(self.playerKickLst,","))
-		self.btnConfirmClick["CLEAN"] = true
+	if self:PlayerIsInRaid() == false then
 		return
-		else
-		for numP, pName in pairs(self.playerKickLst) do
-			UninviteUnit(pName)
-			SendChatMessage(Xck_L["w_kick_msg"], "WHISPER", "Common", pName)
-		end
-		self.playerKickLst = {}
-		self.btnConfirmClick["CLEAN"] = false
 	end
+	self:getNumMissingPlayers()
+	
+	for PlayerNumRaid = 1, GetNumGroupMembers() do
+		local PlayerName = self:RemoveRealmPName(UnitName("raid"..PlayerNumRaid))
+		if self:has_value(self.playersLst, PlayerName) then
+			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(self:get_index(self.playersLst, PlayerName)))
+			elseif self:has_value(self.playersLst, PlayerName) == false and self:has_value(self.playersLst, "") then
+			local indexEmptyP = self:get_index(self.playersLst, "")
+			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(indexEmptyP))
+			self.playersLst[indexEmptyP] = PlayerName
+			XckbuclRaidSubManagerSettings[indexEmptyP] = PlayerName
+			self:LoadPlayerOnEditbox()
+			DEFAULT_CHAT_FRAME:AddMessage(PlayerName..Xck_L["unknown_player_auto_placed"]..self:getPlayerGroupByID(indexEmptyP))
+			elseif self:has_value(self.playersLst, PlayerName) == false and self:has_value(self.playersLst, "") == false and PlayerName ~= "Inconnu" then
+			DEFAULT_CHAT_FRAME:AddMessage(string.format(Xck_L["unknown_player_setup_full"], PlayerName))
+		end
+	end
+	
 end
 
 
+----------------------------------------
+-------------MISC FUNCTIONS-------------
+----------------------------------------
+
+---- Function to generate empty save players list
+function XckRSM:initEmptyTablePlayers()
+	local player = {}
+	for i=1,40 do 
+		player[i] = "Empty"
+	end
+	return player
+end
+
+---- Function to calcul on which group player need to go wisth the ID Position
+function XckRSM:getPlayerGroupByID(playerID)
+	return math.ceil(playerID/5)
+end
+
+---- Function to remove RealmName
+function XckRSM:RemoveRealmPName(playerName)
+	return string.gsub(playerName, "(.*)%-.*$", "%1", 1)
+end
+
+---- Function for remove color... code from string
+function XckRSM:UnescapeSequenceStr(String)
+	local Result = tostring(String)
+	Result = gsub(Result, "|c........", "") -- Remove color start.
+	Result = gsub(Result, "|r", "") -- Remove color end.
+	Result = gsub(Result, "|H.-|h(.-)|h", "%1") -- Remove links.
+	Result = gsub(Result, "|T.-|t", "") -- Remove textures.
+	Result = gsub(Result, "{.-}", "") -- Remove raid target icons.
+	return Result
+end
+
+---- Check if table has Value
+function XckRSM:has_value(tab, val)
+    for index, value in ipairs(tab) do
+		if value == val then
+			return true
+		end
+	end
+    return false
+end
+
+---- Check if table has Value
+function XckRSM:get_index(tab, val)
+    for index, value in ipairs(tab) do
+		if value == val then
+			return index
+		end
+	end
+    return false
+end
+
+---- Split all players in string separated from pattern and insert to table
+function XckRSM:str_split(players_data, pattern_delimiter)
+    result = {};
+	for v in string.gmatch(players_data, pattern_delimiter) do
+		local pName = v
+		if self:has_value(self.playerFreeLine, pName) then
+			pName = ""
+		end
+		tinsert(result, pName)
+	end
+    return result;
+end
+
+
+----------------------------------------
+----------PLAYER BASE FUNCTIONS---------
+----------------------------------------
+
+---- Get player from from Name if he's on guild or raid
+function XckRSM:getPlayerClass(playerName)
+	local playerClass, englishClass = UnitClass(playerName);
+	SetGuildRosterShowOffline(true)
+	GuildRoster()
+	if englishClass then
+		SetGuildRosterShowOffline(false)
+		return englishClass
+		elseif self:PlayerIsGuildMate(playerName) ~= false then
+		local name, rank, rankIndex, level, class, zone, note, 
+		officernote, online, status, classFileName, 
+		achievementPoints, achievementRank, isMobile, isSoREligible, standingID = GetGuildRosterInfo(self:PlayerIsGuildMate(playerName));
+		SetGuildRosterShowOffline(false)
+		return classFileName
+		else
+		SetGuildRosterShowOffline(false)
+		return "Unknown"
+	end
+end
+
+---- Check if player is in Guild
+function XckRSM:PlayerIsGuildMate(playerName)
+	numTotalGuildMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers();
+	for GuildNumMember = 1, numTotalGuildMembers do
+		name, rank, rankIndex, level, classDisplayName, zone, note, officernote, isOnline, status = GetGuildRosterInfo(GuildNumMember)
+		
+		if self:RemoveRealmPName(name) == playerName then
+			return GuildNumMember
+		end
+		
+	end
+	return false
+end
+
+---- Move player in the right group from Setup
+function XckRSM:MovePlayer(playerRaidID, subgroup)
+	if XckRSM:PlayerIsInRaid() == false then
+		return
+	end
+	SetRaidSubgroup(playerRaidID, subgroup)
+end
+
+---- Set player Icon Status if he's InRaid or not
 function XckRSM:SetPlayerStatus()
 	if XckRSM:PlayerIsInRaid() == false then
 		return
@@ -801,29 +901,134 @@ function XckRSM:SetPlayerStatus()
 	for numP = 1, 40 do
 		local PlayerNameInput = self:UnescapeSequenceStr(_G["XRSMPlayer_"..numP]:GetText())
 		local PlayerNumRaid = self:GetRaidIDByName(PlayerNameInput)
+		_G["XRSMPlayerMT_"..numP]:Hide()
 		_G["XRSMPlayerIndicator_"..numP]:SetNormalTexture("Interface\\friendsframe\\StatusIcon-Offline")
 		if PlayerNumRaid ~= false then
+			_G["XRSMPlayerMT_"..numP]:Show()
 			_G["XRSMPlayerIndicator_"..numP]:SetNormalTexture("Interface\\friendsframe\\StatusIcon-Online")
 			else
+			_G["XRSMPlayerMT_"..numP]:Hide()
 			_G["XRSMPlayerIndicator_"..numP]:SetNormalTexture("Interface\\friendsframe\\StatusIcon-Offline")
 		end
 	end
 end
 
+---- Check if player joined is Marked in ML List, if yes, give the ML
 function XckRSM:checkPlayerSetML()
-	if self.playerML ~= "" and XckRSM:GetRaidIDByName(self.playerML) ~= false then
+	if self.playerML == "" then
+		return
+	end
+	if XckRSM:GetRaidIDByName(self.playerML) ~= false then
 		SetLootMethod("master", self.playerML)
 	end
-end		
+end
 
-function XckRSM:isPlayerRightRaid(playerName)
-	playerName = string.gsub(playerName, "-"..GetRealmName(), "") 
-	local isMatch = false
-	for numP = 1, 40 do
-		local PlayerNameInput = self:UnescapeSequenceStr(_G["XRSMPlayer_"..numP]:GetText())
-		if playerName == PlayerNameInput then
-			isMatch = true
+---- Check if player joined is Marked in Assist List, if yes, give the Promote
+function XckRSM:checkPlayerSetAssist()
+	if not self.playerAssist[1] then
+		return
+	end
+	for numP, pName in pairs(self.playerAssist) do
+		local pRID = XckRSM:GetRaidIDByName(pName)
+		if pRID ~= false then
+			local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(pRID);
+			if rank ~= 1 then
+				PromoteToAssistant(pName)
+			end
 		end
 	end
-	return isMatch
-end		
+end	
+
+---- Function to check if player is in Raid
+function XckRSM:PlayerIsInRaid()
+	return UnitInRaid("player") and true or false
+end
+
+---- Get Player Raid ID
+function XckRSM:GetRaidIDByName(PlayerName)
+	-- /run DEFAULT_CHAT_FRAME:AddMessage(XckRSM:GetRaidIDByName("Xckbucl"))
+	if XckRSM:PlayerIsInRaid() == false then
+		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["no_player_filled"])
+		return
+	end
+	local targetID = 1;
+	for i = 1, GetNumGroupMembers() do
+		if self:RemoveRealmPName(UnitName("raid"..i)) == PlayerName then
+			return i;
+		end
+	end
+	return false
+end
+
+
+----------------------------------------
+-------------MNMB FUNCTIONS-------------
+----------------------------------------
+
+---- Update the Potision of minimap Button
+function XckRSM:UpdateMapBtn()
+    local Xpoa, Ypoa = GetCursorPosition()
+    local Xmin, Ymin = Minimap:GetLeft(), Minimap:GetBottom()
+    Xpoa = Xmin - Xpoa / Minimap:GetEffectiveScale() + 70
+    Ypoa = Ypoa / Minimap:GetEffectiveScale() - Ymin - 70
+    self.miniMapBtn.myIconPos = math.deg(math.atan2(Ypoa, Xpoa))
+    XckRSM_MinimapButtonFrame:ClearAllPoints()
+    XckRSM_MinimapButtonFrame:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 52 - (80 * cos(self.miniMapBtn.myIconPos)), (80 * sin(self.miniMapBtn.myIconPos)) - 52)
+end
+
+---- Init the Minimap button events
+function XckRSM:InitButtonMapDrag()
+	XckRSM_MinimapButtonFrame:RegisterForDrag("LeftButton")
+	XckRSM_MinimapButtonFrame:SetScript("OnDragStart", function()
+		XckRSM_MinimapButtonFrame:StartMoving()
+		XckRSM_MinimapButtonFrame:SetScript("OnUpdate", function() XckRSM:UpdateMapBtn() end)
+	end)
+	
+	XckRSM_MinimapButtonFrame:SetScript("OnDragStop", function(self)
+		local _,_,_,xpos,ypos = self:GetPoint()
+		MMPButtonSettings["ButtonPos"] = {xpos,ypos}
+		XckRSM_MinimapButtonFrame:StopMovingOrSizing();
+		XckRSM_MinimapButtonFrame:SetScript("OnUpdate", nil)
+		XckRSM:UpdateMapBtn();
+	end)
+	
+	---- Set position from SavedVariables
+	XckRSM_MinimapButtonFrame:ClearAllPoints();
+	if not MMPButtonSettings or MMPButtonSettings["ButtonPos"] == nil then
+		MMPButtonSettings = {}
+		MMPButtonSettings["ButtonPos"] = self.miniMapBtn.DefaultOptions["ButtonPos"]
+	end
+	XckRSM_MinimapButtonFrame:SetPoint("TOPLEFT", Minimap, "TOPLEFT", MMPButtonSettings["ButtonPos"][1], MMPButtonSettings["ButtonPos"][2]);
+	
+	---- Set position from SavedVariables
+	if MMPButtonSettings["ButtonDisplay"] == nil then
+		MMPButtonSettings["ButtonDisplay"] = true
+		else
+		if MMPButtonSettings["ButtonDisplay"] == true then
+			XckRSM_MinimapButtonFrame:Show() 
+			else
+			XckRSM_MinimapButtonFrame:Hide()
+		end
+	end
+	
+end
+
+---- Display or Hide Minimap Toggle from chat CMD
+function XckRSM:ToggleMiniMapBtn()
+	
+	---- Set position from SavedVariables
+	if MMPButtonSettings["ButtonDisplay"] == nil then
+		MMPButtonSettings["ButtonDisplay"] = true
+	end
+	
+	if MMPButtonSettings["ButtonDisplay"] == true then
+		XckRSM_MinimapButtonFrame:Hide() 
+		MMPButtonSettings["ButtonDisplay"] = false
+		else
+		XckRSM_MinimapButtonFrame:Show()
+		MMPButtonSettings["ButtonDisplay"] = true
+	end
+	
+end
+
+

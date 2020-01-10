@@ -1,9 +1,9 @@
 ## Interface: 11303
-## Title: |cfffbb034 Xckbucl|cffffffffRaidSubManager v1.0 - Classic
+## Title: |cfffbb034 Xckbucl|cffffffffRaidSubManager v1.6 - Classic
 ## Author: Xckbucl, 2019 (Thanks to Mimma @ <EU-Pyrewood Village> for UI Skin)
-## Version: 1.01
+## Version: 1.6
 ## Notes: Easy Step Up raid Players & Clean wrong mates! Made by Xckbucl from Sulfuron Classic
-## SavedVariables: XckbuclRaidSubManagerSettings,XckbuclRaidSubManagerEnable, XckbuclRaidSubManagerAOEnable, XckbuclRaidSubManagerAKEnable, XckbuclRaidSubManagerAITriggerEnable
+## SavedVariables: XckbuclRaidSubManagerSettings,XckbuclRaidSubManagerEnable, XckbuclRaidSubManagerAOEnable, XckbuclRaidSubManagerAKEnable, XckbuclRaidSubManagerAITriggerEnable, MMPButtonSettings
 
 # Locale files
 Locales\Locale-enUS.lua

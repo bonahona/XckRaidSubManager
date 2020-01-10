@@ -17,6 +17,7 @@ Xck_L["str_msg_AI_tooltip"] = "Choisissez UN mot-clé.\nSi vous recevez en Whisp
 Xck_L["str_login_AI_tooltip"] = "Si un joueur se connecte & fait partie du raid mais qu'il n'est pas encore groupé, il reçois une invitation automatiquement.\nPour que cette option fonction vous devez activer: \"Interface->Social->Alerte membre de guilde\""
 Xck_L["str_AO_tooltip"] =  "Active ou Désactive l'Organisation Automatique des groupes quand un joueur Rejoint/Quitte le raid ou qu'un joueur est modifié dans la configuration."
 Xck_L["str_addon_enable_tooltip"] = "Active ou Désactive l'Addon."
+Xck_L["addon_must_be_enable"] = "|cffead454Vous devez activer l'addon, Cochez la case en bas"
 
 --LUA Translation Part
 Xck_L["missing_player"] = "Joueur(s) Manquant"
@@ -33,6 +34,10 @@ Xck_L["str_def_cmd_1"] = "|cfffbb034<|r|cffead454Xckbucl Raid Sub Manager>|r Mad
 Xck_L["str_def_cmd_2"] = "|cfffbb034<|rCommande(s) Disponible:|r|cfffbb034>"
 Xck_L["str_def_cmd_3"] = "Panneau de Configuration |cff49C0C0/xraid config|r || |cff49C0C0/xckraid config|r\nNettoyage des Joueurs |cff49C0C0/xckraid clean|r || |cff49C0C0/xraid clean"
 Xck_L["class_name"] = {["HUNTER"] = "Chasseur", ["WARRIOR"] = "Guerrier", ["WARLOCK"] = "Démoniste", ["SHAMAN"] = "Chaman", ["MAGE"] = "Mage", ["DRUID"] = "Druide", ["ROGUE"] = "Voleur", ["PRIEST"] = "Prêtre", ["PALADIN"] = "Paladin"}
+Xck_L["no_more_assist"] = "|cffead454n'est plus Assistant."
+Xck_L["is_assist"] = "|cffead454est maintenant Assistant."
+Xck_L["will_be_assist"] = "|cffead454sera Assistant a son arrivé."
+Xck_L["will_be_no_more_assist"] = "|cffead454ne sera plus Assistant a son arrivé."
 Xck_L["no_more_ml"] = "|cffead454n'est plus le ML."
 Xck_L["is_ml"] = "|cffead454est maintenant le ML."
 Xck_L["will_be_ml"] = "|cffead454sera le ML a son arrivé."
@@ -43,5 +48,6 @@ Xck_L["msg_prevent_organize"] = "|cffead454Les Groupes vont êtres réorganisé 
 Xck_L["group"] = "Groupe "
 Xck_L["unknown_player_auto_placed"] = " |cffead454n'est pas prévue dans cette configuration de raid, il a donc été placé automatiquement dans un emplacement vide, dans le Groupe "
 Xck_L["unknown_player_setup_full"] = "|cFF7F0000Configuration de Raid pleine, Remplacez un joueur par %s dans la configuration pour éviter tout problèmes de composition des groupes."
+Xck_L["msg_no_player_kick"] = "|cffead454Aucun joueur a Kick"
 
 end
