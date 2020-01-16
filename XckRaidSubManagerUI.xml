@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<!--- UI FRAME MINIMAP BUTTON  -->
-	<Button name="XckRSM_MinimapButtonFrame" toplevel="true" frameStrata="MEDIUM" parent="Minimap" enableMouse="true" movable="true">
+	<Button name="XckRSM_MinimapButtonFrame" toplevel="true" frameStrata="FULLSCREEN" parent="Minimap" enableMouse="true" movable="true">
 		<Size>
 			<AbsDimension x="33" y="33"/>
 		</Size>
@@ -64,7 +64,7 @@
 	enableMouse="true"
 	movable="true"
 	hidden="true"
-	frameStrata="LOW"
+	frameStrata="DIALOG"
 	parent="UIParent">
 		<Size x="768" y="446"/>
 		<Anchors>
@@ -72,19 +72,19 @@
 			<Offset><AbsDimension x="0" y="0"/></Offset>
 		</Anchors>
 		<Frames>
-			<Frame frameStrata="BACKGROUND">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="64" y="64"/></Size>
 				<Anchors><Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT" x="6" y="-4" /></Anchors>
 				<Backdrop bgFile="Interface\AddOns\XckRaidSubManager\Media\INV_Faction_OrderofEmbers_Round"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="0" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-topleft"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT" x="256" y="0" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-top"></Backdrop>
@@ -116,31 +116,31 @@
 				</Layers>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT" x="512" y="0" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-topright"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT"  relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="-256" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-botleft"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="256" y="-256" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-bot"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="LOW">
+			<Frame frameStrata="DIALOG">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="512" y="-256" /></Anchors>
 				<Backdrop bgFile="Interface\auctionframe\ui-auctionframe-browse-botright"></Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="MEDIUM">
+			<Frame frameStrata="FULLSCREEN">
 				<Size><AbsDimension x="256" y="256"/></Size>
 				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="-27" y="-83" /></Anchors>
 				<Backdrop bgFile="Interface\TalentFrame\DruidRestoration-Topleft">
@@ -150,7 +150,7 @@
 				</Backdrop>
 			</Frame>
 			
-			<Frame frameStrata="MEDIUM">
+			<Frame frameStrata="FULLSCREEN">
 				<Size><AbsDimension x="256" y="128"/></Size>
 				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="-27" y="-339" /></Anchors>
 				<Backdrop bgFile="Interface\TalentFrame\DruidRestoration-Bottomleft">
@@ -160,7 +160,7 @@
 				</Backdrop>
 			</Frame>
 			
-			<Frame name="$parentSetup1" hidden="false" frameStrata="MEDIUM">
+			<Frame name="$parentSetup1" hidden="false" frameStrata="FULLSCREEN">
 				<Size><AbsDimension x="256" y="128"/></Size>
 				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="0" /></Anchors>
 			</Frame>   
@@ -230,7 +230,7 @@
 				</ButtonText>
 			</Button>
 			
-			<Frame frameStrata="MEDIUM" >
+			<Frame frameStrata="FULLSCREEN" >
 				<Size x="200" y="200"/>
 				<Layers>
 					<Layer>
@@ -252,7 +252,7 @@
 				</Layers>
 			</Frame>
 			
-			<Frame frameStrata="MEDIUM" >
+			<Frame frameStrata="FULLSCREEN" >
 				<Size x="200" y="200"/>
 				<Layers>
 					<Layer>
@@ -271,7 +271,7 @@
 				</Layers>
 			</Frame>
 			
-			<Frame frameStrata="MEDIUM" >
+			<Frame frameStrata="FULLSCREEN" >
 				<Size x="200" y="20"/>
 				<Layers>
 					<Layer>
@@ -293,7 +293,7 @@
 				</Layers>
 			</Frame>
 			
-			<Frame frameStrata="MEDIUM" >
+			<Frame frameStrata="FULLSCREEN" >
 				<Size x="200" y="20"/>
 				<Layers>
 					<Layer>
@@ -495,7 +495,7 @@
 			</Button>
 			
 			<!-- ScrollFrame for input below -->
-			<ScrollFrame name="$parentRawScrollFrame" inherits="UIPanelScrollFrameTemplate" frameStrata="MEDIUM">
+			<ScrollFrame name="$parentRawScrollFrame" inherits="UIPanelScrollFrameTemplate" frameStrata="FULLSCREEN">
 				<Size x="125" y="290"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent">
@@ -521,7 +521,7 @@
 			</ScrollFrame>
 			
 			<!-- Input for all Raw C/C Players -->
-			<EditBox name="$parentRawEditBox" multiline="true" autoFocus="false" frameStrata="MEDIUM">
+			<EditBox name="$parentRawEditBox" multiline="true" autoFocus="false" frameStrata="FULLSCREEN">
 				<Size x="125" y="290"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentRawScrollFrame">
@@ -539,7 +539,7 @@
 			</EditBox>
 			
 			<!-- Input for AutoInvite Players with specified msg-->
-			<EditBox name="$parentAutoInvitMsgEditBox" autoFocus="false" frameStrata="MEDIUM">
+			<EditBox name="$parentAutoInvitMsgEditBox" autoFocus="false" frameStrata="FULLSCREEN">
 				<Size x="75" y="30"/>
 				<Anchors>
 					<Anchor point="TOPLEFT">
