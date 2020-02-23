@@ -279,7 +279,7 @@
 							<Color r="1" g="0.8" b="1" a="1"/>
 							<FontHeight val="12"/>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent" x="190" y="-85" />
+								<Anchor point="TOPLEFT" relativeTo="$parent" x="355" y="-416" />
 							</Anchors>
 							<Color r="1" g="0.8196079" b="0" />
 							<Shadow>
@@ -537,6 +537,142 @@
 					</OnEscapePressed>
 				</Scripts>
 			</EditBox>
+			
+			<!-- Input for setup profil name -->
+			<EditBox name="$parentRawEditBoxProfilName" multiline="true" autoFocus="false" frameStrata="FULLSCREEN">
+				<Size x="100" y="290"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent">
+						<Offset>
+							<AbsDimension x="190" y="-83" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentLeft" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="8" y="20" />
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" />
+							</Anchors>
+							<TexCoords left="0.0010" right="0.0625" top="0" bottom="0.625" />
+						</Texture>
+						<Texture name="$parentRight" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="8" y="20" />
+							</Size>
+							<Anchors>
+								<Anchor point="RIGHT" />
+							</Anchors>
+							<TexCoords left="0.9375" right="1" top="0" bottom="0.625" />
+						</Texture>
+						<Texture name="$parentMiddle" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="10" y="20" />
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentLeft" relativePoint="RIGHT" />
+								<Anchor point="RIGHT" relativeTo="$parentRight" relativePoint="LEFT" />
+							</Anchors>
+							<TexCoords left="0.0625" right="0.0375" top="0" bottom="0.625" />
+						</Texture>
+					</Layer>
+				</Layers>
+				<FontString inherits="GameFontNormal">
+					<FontHeight>
+						<AbsValue val="14" />
+					</FontHeight>
+					<Color r="1" g="1" b="1" />
+					<Shadow>
+						<Color r="0" g="0" b="0" />
+						<Offset>
+							<AbsDimension x="1" y="-1" />
+						</Offset>
+					</Shadow>
+				</FontString>
+				<Scripts>
+					<OnEscapePressed>
+						self:ClearFocus()
+					</OnEscapePressed>
+				</Scripts>
+			</EditBox>
+			
+			<!-- Button for save Profil -->
+			<Button name="$parentBtn4" inherits="UIPanelButtonTemplate" text="" frameStrata="FULLSCREEN">
+				<Size x="25" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentRawEditBoxProfilName">
+						<Offset>
+							<AbsDimension x="105" y="4" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<NormalTexture file="Interface\RAIDFRAME\ReadyCheck-Ready"/>
+				<PushedTexture file="Interface\RAIDFRAME\ReadyCheck-Ready"/>
+				<HighlightTexture file="Interface\RAIDFRAME\ReadyCheck-Ready" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+					XckRSM:SaveProfil()
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<!-- Dropdown for select Profil -->
+			 <Frame name="$parentselectProfil" inherits="UIDropDownMenuTemplate" text="" frameStrata="FULLSCREEN">
+			 <Size x="90" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBtn4">
+                        <Offset x="25" y="5" />
+					</Anchor>
+				</Anchors>
+                <FontString inherits="ChatFontNormal"/>
+                <Scripts>
+                    <OnLoad>
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<!-- Button for load Profil -->
+			<Button name="$parentBtn5" inherits="UIPanelButtonTemplate" text="" frameStrata="FULLSCREEN">
+				<Size x="25" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentselectProfil">
+						<Offset>
+							<AbsDimension x="150" y="-4" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<NormalTexture file="Interface\RAIDFRAME\ReadyCheck-Ready"/>
+				<PushedTexture file="Interface\RAIDFRAME\ReadyCheck-Ready"/>
+				<HighlightTexture file="Interface\RAIDFRAME\ReadyCheck-Ready" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+					XckRSM:LoadProfil(UIDropDownMenu_GetText(XckbuclRaidSubManagerUIselectProfil))
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<!-- Button for delete Profil -->
+			<Button name="$parentBtn6" inherits="UIPanelButtonTemplate" text="" frameStrata="FULLSCREEN">
+				<Size x="25" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentBtn5">
+						<Offset>
+							<AbsDimension x="27" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<NormalTexture file="Interface\RAIDFRAME\ReadyCheck-NotReady"/>
+				<PushedTexture file="Interface\RAIDFRAME\ReadyCheck-NotReady"/>
+				<HighlightTexture file="Interface\RAIDFRAME\ReadyCheck-NotReady" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+						XckRSM:DeleteSelectedProfil(UIDropDownMenu_GetText(XckbuclRaidSubManagerUIselectProfil))
+					</OnClick>
+				</Scripts>
+			</Button>
 			
 			<!-- Input for AutoInvite Players with specified msg-->
 			<EditBox name="$parentAutoInvitMsgEditBox" autoFocus="false" frameStrata="FULLSCREEN">

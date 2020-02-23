@@ -49,5 +49,13 @@ Xck_L["group"] = "Groupe "
 Xck_L["unknown_player_auto_placed"] = " |cffead454n'est pas prévue dans cette configuration de raid, il a donc été placé automatiquement dans un emplacement vide, dans le Groupe "
 Xck_L["unknown_player_setup_full"] = "|cFF7F0000Configuration de Raid pleine, Remplacez un joueur par %s dans la configuration pour éviter tout problèmes de composition des groupes."
 Xck_L["msg_no_player_kick"] = "|cffead454Aucun joueur a Kick"
+Xck_L["msg_profil_set_pname"] = "|cFF7F0000Veuillez renseigner un nom de Profil"
+Xck_L["msg_profil_too_many"] = "|cFF7F0000Vous avez trop de Profils enregistré, Supprimez en!You have too many Profils saved, Please delete some!(25 max)"
+Xck_L["msg_profil_saved"] = "|cffead454 à été sauvegardé"
+Xck_L["msg_profil_any_selected"] = "|cFF7F0000Vous devez séléctionner un profil d'abord"
+Xck_L["msg_profil_deleted"] = "|cffead454 à été supprimé"
+Xck_L["msg_profil_imported"] = "|cffead454 à été importé"
+Xck_L["msg_organize_processing"] = "|cffead454Organisation en cour... Merci de patienter..."
+Xck_L["msg_organize_done"] = "|cffead454Organisation Terminée!"
 
 end

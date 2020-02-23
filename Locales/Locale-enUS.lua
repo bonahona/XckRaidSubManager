@@ -49,5 +49,13 @@ Xck_L["group"] = "Group "
 Xck_L["unknown_player_auto_placed"] = " |cffead454isn't planed on this raid setup, he has been replaced automatically on empty slot, in the Group "
 Xck_L["unknown_player_setup_full"] = "|cFF7F0000Raid Setup full, replace a player by %s in the setup to avoid any problems of groups organization."
 Xck_L["msg_no_player_kick"] = "|cffead454Any player to Kick"
+Xck_L["msg_profil_set_pname"] = "|cFF7F0000Please select a Profil Name"
+Xck_L["msg_profil_too_many"] = "|cFF7F0000You have too many Profils saved, Please delete some!(25 max)"
+Xck_L["msg_profil_saved"] = "|cffead454 has been saved"
+Xck_L["msg_profil_any_selected"] = "|cFF7F0000You need to select a profil before"
+Xck_L["msg_profil_deleted"] = "|cffead454 has been deleted"
+Xck_L["msg_profil_imported"] = "|cffead454 has been imported"
+Xck_L["msg_organize_processing"] = "|cffead454Processing... Please waiting..."
+Xck_L["msg_organize_done"] = "|cffead454Organize Done!"
 
 end

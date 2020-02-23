@@ -2,6 +2,7 @@
 ----------ALL VARIABLES OF ADDON--------
 ----------------------------------------
 XckRSM = {frame = nil,
+	groupCount = {[1] = 0,[2] = 0,[3] = 0,[4] = 0,[5] = 0,[6] = 0,[7] = 0,[8] = 0},
 	playersFrame = {},
 	groupTextFrame = {},
 	playersLst = {},
@@ -50,6 +51,8 @@ SlashCmdList["XCKRSM"] = function(message)
 		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["str_welcome"])
 		elseif cmd[1] == "clean" then
 		XckRSM:KickWrongPlayer()
+		elseif cmd[1] == "export" then
+		XckRSM:ExportSetupToRaw()
 		elseif cmd[1] == "minimap" then
 		XckRSM:ToggleMiniMapBtn()
 		else
@@ -389,6 +392,12 @@ function XckRSM:InitAddon()
 		XckbuclRaidSubManagerAITriggerEnable = "enabled"
 	end
 	
+	if not XckbuclRaidSubManagerProfils then
+		XckbuclRaidSubManagerProfils = {["Default"]=""}
+	end
+	
+	UIDropDownMenu_Initialize(XckbuclRaidSubManagerUIselectProfil, XckRSM.InitializeDropdown);
+	
 end
 
 ---- Load Settings CheckBox State from SavedVariables
@@ -535,7 +544,7 @@ end
 function XckRSM:LoadPlayerOnEditbox()
 	if #self.playersLst == 0 and #XckbuclRaidSubManagerSettings ~= 0 then
 		self.playersLst = XckbuclRaidSubManagerSettings
-		elseif (self.playerLst == nil or #self.playerLst == 0) and #XckbuclRaidSubManagerSettings == 0 then
+		elseif (self.playersLst == nil or #self.playersLst == 0) and #XckbuclRaidSubManagerSettings == 0 then
 		self.playersLst = self:initEmptyTablePlayers()
 	end
 	
@@ -758,15 +767,29 @@ function XckRSM:OrganizePlayerGroup()
 	if self:PlayerIsInRaid() == false then
 		return
 	end
-	self:getNumMissingPlayers()
+	
+	self:scanGroupCount()
 	
 	for PlayerNumRaid = 1, GetNumGroupMembers() do
 		local PlayerName = self:RemoveRealmPName(UnitName("raid"..PlayerNumRaid))
 		if self:has_value(self.playersLst, PlayerName) then
-			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(self:get_index(self.playersLst, PlayerName)))
+			local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(PlayerNumRaid);
+			local targetGroupNum = self:getPlayerGroupByID(self:get_index(self.playersLst, PlayerName))
+			if subgroup ~= targetGroupNum then
+				if self.groupCount[targetGroupNum] ~= 5 then
+					self.groupCount[subgroup] = self.groupCount[subgroup]-1
+					self.groupCount[targetGroupNum] = self.groupCount[targetGroupNum]+1
+					SetRaidSubgroup(PlayerNumRaid, targetGroupNum)
+					else
+					local pIDWrong = self:getPlayerIDWrongGroup()
+					if pIDWrong ~= false then
+						SwapRaidSubgroup(PlayerNumRaid,pIDWrong)
+					end
+				end
+			end
 			elseif self:has_value(self.playersLst, PlayerName) == false and self:has_value(self.playersLst, "") then
 			local indexEmptyP = self:get_index(self.playersLst, "")
-			self:MovePlayer(PlayerNumRaid, self:getPlayerGroupByID(indexEmptyP))
+			SetRaidSubgroup(PlayerNumRaid, self:getPlayerGroupByID(indexEmptyP))
 			self.playersLst[indexEmptyP] = PlayerName
 			XckbuclRaidSubManagerSettings[indexEmptyP] = PlayerName
 			self:LoadPlayerOnEditbox()
@@ -775,9 +798,46 @@ function XckRSM:OrganizePlayerGroup()
 			DEFAULT_CHAT_FRAME:AddMessage(string.format(Xck_L["unknown_player_setup_full"], PlayerName))
 		end
 	end
-	
+	if self:getPlayerIDWrongGroup() ~= false then
+	DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_organize_processing"])
+	C_Timer.After(2, function()
+	XckRSM:OrganizePlayerGroup()
+	end)
+	else
+	DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_organize_done"])
+	end
 end
 
+local waitTable = {};
+local waitFrame = nil;
+
+function XckRSM:wait(delay, func, ...)
+	if(type(delay)~="number" or type(func)~="function") then
+		return false;
+	end
+	if(waitFrame == nil) then
+		waitFrame = CreateFrame("Frame","WaitFrame", UIParent);
+		waitFrame:SetScript("onUpdate",function (self,elapse)
+			local count = #waitTable;
+			local i = 1;
+			while(i<=count) do
+				local waitRecord = tremove(waitTable,i);
+				local d = tremove(waitRecord,1);
+				local f = tremove(waitRecord,1);
+				local p = tremove(waitRecord,1);
+				if(d>elapse) then
+					tinsert(waitTable,i,{d-elapse,f,p});
+					i = i + 1;
+					else
+					count = count - 1;
+					f(unpack(p));
+				end
+			end
+		end);
+	end
+	tinsert(waitTable,{delay,func,{...}});
+	return true;
+end
 
 ----------------------------------------
 -------------MISC FUNCTIONS-------------
@@ -790,6 +850,40 @@ function XckRSM:initEmptyTablePlayers()
 		player[i] = "Empty"
 	end
 	return player
+end
+
+---- Grab all information about subgroup count players
+function XckRSM:scanGroupCount()
+	self.groupCount = {[1] = 0,[2] = 0,[3] = 0,[4] = 0,[5] = 0,[6] = 0,[7] = 0,[8] = 0}
+	for i = 1 , GetNumGroupMembers() do
+        local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+        self.groupCount[subgroup] = self.groupCount[subgroup] +1
+	end
+end
+
+---- Check if Player is in right group
+function XckRSM:isRightGroup(playerNum)
+	local PlayerName = self:RemoveRealmPName(UnitName("raid"..playerNum))
+	local playerRaidGroup = self:getPlayerGroupByID(playerNum)
+	local playerSavedGroup = self:getPlayerGroupByID(self:get_index(self.playersLst, PlayerName))
+	if playerRaidGroup ~= playerSavedGroup then
+		return false
+		else
+		return true
+	end
+end
+
+---- Get player ID in wrong group
+function XckRSM:getPlayerIDWrongGroup()
+	for PlayerNumRaid = 1, GetNumGroupMembers() do
+		local playerRaidName = self:RemoveRealmPName(UnitName("raid"..PlayerNumRaid))
+		local playerSavedGroupID = self:getPlayerGroupByID(self:get_index(self.playersLst, playerRaidName)) 
+		local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(PlayerNumRaid);
+		if subgroup ~= playerSavedGroupID then
+			return PlayerNumRaid
+		end
+	end
+	return false
 end
 
 ---- Function to calcul on which group player need to go wisth the ID Position
@@ -820,7 +914,7 @@ function XckRSM:has_value(tab, val)
 			return true
 		end
 	end
-    return false
+	return false
 end
 
 ---- Check if table has Value
@@ -835,7 +929,7 @@ end
 
 ---- Split all players in string separated from pattern and insert to table
 function XckRSM:str_split(players_data, pattern_delimiter)
-    result = {};
+	result = {};
 	for v in string.gmatch(players_data, pattern_delimiter) do
 		local pName = v
 		if self:has_value(self.playerFreeLine, pName) then
@@ -843,7 +937,7 @@ function XckRSM:str_split(players_data, pattern_delimiter)
 		end
 		tinsert(result, pName)
 	end
-    return result;
+	return result;
 end
 
 
@@ -883,14 +977,6 @@ function XckRSM:PlayerIsGuildMate(playerName)
 		
 	end
 	return false
-end
-
----- Move player in the right group from Setup
-function XckRSM:MovePlayer(playerRaidID, subgroup)
-	if XckRSM:PlayerIsInRaid() == false then
-		return
-	end
-	SetRaidSubgroup(playerRaidID, subgroup)
 end
 
 ---- Set player Icon Status if he's InRaid or not
@@ -960,6 +1046,102 @@ function XckRSM:GetRaidIDByName(PlayerName)
 	return false
 end
 
+
+function XckRSM:ExportSetupToRaw()
+	XckbuclRaidSubManagerUIRawEditBox:SetText("")
+	for numP = 1, 40 do 
+		local PlayerNameInput = self:UnescapeSequenceStr(_G["XRSMPlayer_"..numP]:GetText())
+		if PlayerNameInput == "" then
+			PlayerNameInput = "Empty"
+		end
+		XckbuclRaidSubManagerUIRawEditBox:SetText(XckbuclRaidSubManagerUIRawEditBox:GetText()..PlayerNameInput.."\n")
+	end
+end
+
+
+----------------------------------------
+------------PROFILS FUNCTIONS-----------
+----------------------------------------
+
+---- Get Total Profils Saved
+function XckRSM:GetNbProfilSaved()
+	if(not XckbuclRaidSubManagerProfils) then
+		return 0
+	end
+	local countProfilNameSaved = {}
+	for name, config in pairs(XckbuclRaidSubManagerProfils) do table.insert(countProfilNameSaved, name) end
+	return getn(countProfilNameSaved)
+end
+
+---- Save Profil for current Raid Setup
+function XckRSM:SaveProfil()
+	local profilName = XckbuclRaidSubManagerUIRawEditBoxProfilName:GetText()
+	local profilData = ""
+	
+	if profilName == nil or profilName == "" then
+		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_profil_set_pname"])
+		return
+	end
+	
+	if(self:GetNbProfilSaved() >= 25) then
+		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_profil_too_many"])
+		return
+	end
+	
+	for numP = 1, 40 do 
+		local PlayerNameInput = self:UnescapeSequenceStr(_G["XRSMPlayer_"..numP]:GetText())
+		if PlayerNameInput == "" then
+			PlayerNameInput = "Empty"
+		end
+		profilData = (profilData..PlayerNameInput.."\n")
+	end
+	XckbuclRaidSubManagerProfils[profilName] = {}
+	XckbuclRaidSubManagerProfils[profilName] = profilData
+	DEFAULT_CHAT_FRAME:AddMessage("XckRaidSubManager: "..profilName..Xck_L["msg_profil_saved"])
+	
+	UIDropDownMenu_Initialize(XckbuclRaidSubManagerUIselectProfil, XckRSM.InitializeDropdown);
+end
+
+---- Init DropDown RaidGroups Players
+function XckRSM:InitializeDropdown()
+	for key, value in pairs(XckbuclRaidSubManagerProfils) do
+		local info = {}
+		info.hasArrow = false;
+		info.notCheckable = true;
+		info.text = key;
+		info.value = key;
+		info.owner = UIDROPDOWNMENU_OPEN_MENU;
+		info.func = XckRSM.DropClicked;
+		UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL );
+	end    
+end
+
+---- Event DropDown Clicked
+function XckRSM.DropClicked(self, arg1, arg2, checked)
+	UIDropDownMenu_SetText(self.owner, self.value)
+end
+
+---- Delete selected Profil Raid Setup
+function XckRSM:DeleteSelectedProfil(profilName)
+	if profilName == nil or profilName == "" then
+		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_profil_any_selected"])
+		return
+	end
+	XckbuclRaidSubManagerProfils[profilName] = nil
+	UIDropDownMenu_SetText(XckbuclRaidSubManagerUIselectProfil, "")
+	DEFAULT_CHAT_FRAME:AddMessage("XckRaidSubManager: "..profilName..Xck_L["msg_profil_deleted"])
+	UIDropDownMenu_Initialize(XckbuclRaidSubManagerUIselectProfil, XckRSM.InitializeDropdown);
+end
+
+---- Load Profil Raid Setup
+function XckRSM:LoadProfil(profilName)
+	if profilName == nil or profilName == "" then
+		DEFAULT_CHAT_FRAME:AddMessage(Xck_L["msg_profil_any_selected"])
+		return
+	end
+	self:ExportPlayerFromRaw(XckbuclRaidSubManagerProfils[profilName])
+	DEFAULT_CHAT_FRAME:AddMessage("XckRaidSubManager: '"..profilName.."'"..Xck_L["msg_profil_imported"])
+end
 
 ----------------------------------------
 -------------MNMB FUNCTIONS-------------
